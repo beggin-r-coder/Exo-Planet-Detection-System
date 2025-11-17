@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌌 Exoplanet Detection System</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="theme-toggle">
+      <button id="themeToggle" class="theme-btn">🌙</button>
+    </div>
+    <div class="container">
+      <!-- Development Notice -->
+      <div class="dev-notice">
+        <div class="notice-content">
+          <span class="notice-icon">🚧</span>
+          <div class="notice-text">
+            <strong>Early Build Stage</strong>
+            <p>
+              This application is currently under development and in production
+              phase. Features may be experimental.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Section -->
+      <div class="header">
+        <div class="star-icon">⭐</div>
+        <h1 class="main-title">Exoplanet Detection System</h1>
+        <p class="subtitle">
+          Upload your stellar flux data to detect potential exoplanets using
+          advanced transit method analysis
+        </p>
+        <div class="header-actions">
+          <a href="/search" class="header-btn">🔍 Search Stars Database</a>
+          <a href="/kepler" class="header-btn">🛰️ Kepler Light Curve</a>
+          <button id="guideOpen" class="header-btn" type="button">📘 Guide</button>
+        </div>
+      </div>
+
+      <!-- Upload Card -->
+      <div class="upload-card">
+        <h2 class="card-title">Upload Flux Data</h2>
+        <p class="card-description">
+          CSV file containing time series data with 'time' and 'flux' columns
+        </p>
+
+        <form
+          id="uploadForm"
+          action="/predict"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">⬆</div>
+            <p class="upload-text">
+              Drop your CSV file here or click to browse
+            </p>
+            <p class="upload-support">Supports .csv files up to 50MB</p>
+            <input
+              type="file"
+              name="file"
+              accept=".csv"
+              required
+              id="fileInput"
+              style="display: none"
+            />
+          </div>
+          <button type="submit" class="analyze-btn">Analyze Data</button>
+        </form>
+
+        {% if error %}
+        <div class="alert">{{ error }}</div>
+        {% endif %} {% if result %}
+        <div class="results">
+          <h2>{{ result }}</h2>
+          {% if stats %}
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="label">Detection Confidence</span
+              ><span class="value">{{ stats.detection_confidence }}%</span>
+            </div>
+            <div class="stat">
+              <span class="label">Minimum Flux</span
+              ><span class="value">{{ stats.min_flux }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Average Flux</span
+              ><span class="value">{{ stats.avg_flux }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Estimated Period</span
+              ><span class="value"
+                >{{ stats.estimated_period if stats.estimated_period is not none
+                else '—' }}</span
+              >
+            </div>
+            <div class="stat">
+              <span class="label">Transit Depth</span
+              ><span class="value"
+                >{{ stats.transit_depth if stats.transit_depth is not none else
+                '—' }}</span
+              >
+            </div>
+            <div class="stat">
+              <span class="label">Transit Duration</span
+              ><span class="value"
+                >{{ stats.transit_duration if stats.transit_duration is not none
+                else '—' }}</span
+              >
+            </div>
+          </div>
+          {% endif %}
+          <a href="/results" class="btn secondary">View Visualization</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sample Data Section -->
+      <div class="sample-data-card">
+        <h2 class="card-title">📊 Try with Sample Data</h2>
+        <p class="card-description">
+          Download our synthetic light curve datasets to test the detection
+          system
+        </p>
+        <div class="sample-downloads">
+          <div class="sample-item">
+            <h4>🌌 Strong Transit Signal</h4>
+            <p>Clear periodic dips indicating potential exoplanet</p>
+            <a href="/download_sample/strong" class="sample-btn"
+              >Download CSV</a
+            >
+          </div>
+          <div class="sample-item">
+            <h4>🔍 Shallow Transit Signal</h4>
+            <p>Subtle variations for testing detection sensitivity</p>
+            <a href="/download_sample/shallow" class="sample-btn"
+              >Download CSV</a
+            >
+          </div>
+          <div class="sample-item">
+            <h4>📈 No Transit Signal</h4>
+            <p>Baseline data with minimal variations</p>
+            <a href="/download_sample/baseline" class="sample-btn"
+              >Download CSV</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Cards -->
+      <div class="feature-cards">
+        <div class="feature-card">
+          <h3 class="feature-title transit">Transit Method</h3>
+          <p class="feature-description">
+            Detects planets by measuring the dimming of a star's light as a
+            planet passes in front of it
+          </p>
+        </div>
+        <div class="feature-card">
+          <h3 class="feature-title flux">Flux Analysis</h3>
+          <p class="feature-description">
+            Analyzes time-series photometric data to identify periodic dips in
+            stellar brightness
+          </p>
+        </div>
+        <div class="feature-card">
+          <h3 class="feature-title detection">Detection Rate</h3>
+          <p class="feature-description">
+            Calculates the probability of exoplanet presence based on signal
+            patterns
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Anishka Das & Team — Final Year Project – Exoplanet Detection System
+      </p>
+    </footer>
+
+    <!-- Guide Modal -->
+    <div id="guideModal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">📘 Exoplanet Detection — User Guide</h2>
+          <button class="modal-close" id="guideClose" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <h3>What this app does</h3>
+          <p class="modal-tip">Upload light-curve CSVs or use Kepler IDs to visualize stellar brightness and estimate exoplanet transits.</p>
+
+          <h3>Metrics on the Upload page</h3>
+          <ul class="guide-list">
+            <li><b>Detection Confidence</b>: Percent mean probability of transit-like points.</li>
+            <li><b>Minimum Flux</b>: Lowest observed flux; deep minima can indicate transits.</li>
+            <li><b>Average Flux</b>: Mean stellar brightness over the series.</li>
+            <li><b>Estimated Period</b>: Median time between detected dip centers.</li>
+            <li><b>Transit Depth</b>: Median drop below baseline during dips.</li>
+            <li><b>Transit Duration</b>: Typical dip width (time units).</li>
+          </ul>
+
+          <h3>Visualization controls</h3>
+          <ul class="guide-list">
+            <li>Scroll to <b>zoom</b>, drag to <b>pan</b>, use <b>Reset Zoom</b> to restore.</li>
+            <li>Average line helps compare baseline vs dips.</li>
+          </ul>
+
+          <h3>Kepler page</h3>
+          <ul class="guide-list">
+            <li>Enter a <b>Kepler ID (KIC)</b> to fetch real mission data via Lightkurve.</li>
+            <li>Shows <b>RA/Dec</b>, magnitude, time range, flux stats, and <b>exoplanet counts</b> (total/confirmed/candidates) from the dataset.</li>
+          </ul>
+
+          <h3>Tips</h3>
+          <ul class="guide-list">
+            <li>Use <b>Sample Data</b> on the home page to try strong/shallower transits.</li>
+            <li>Download a <b>PDF report</b> on the Results page.</li>
+            <li>Switch <b>dark/light</b> mode with the top-right toggle.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Drag and drop functionality
+      const uploadArea = document.getElementById("uploadArea");
+      const fileInput = document.getElementById("fileInput");
+      const uploadForm = document.getElementById("uploadForm");
+
+      uploadArea.addEventListener("click", () => fileInput.click());
+
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("drag-over");
+      });
+
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("drag-over");
+      });
+
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("drag-over");
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          fileInput.files = files;
+          updateUploadText(files[0].name);
+        }
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+          updateUploadText(e.target.files[0].name);
+        }
+      });
+
+      function updateUploadText(fileName) {
+        const uploadText = uploadArea.querySelector(".upload-text");
+        uploadText.textContent = `Selected: ${fileName}`;
+      }
+
+      // Dark mode functionality
+      const themeToggle = document.getElementById("themeToggle");
+      const body = document.body;
+
+      // Load saved theme
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      body.setAttribute("data-theme", savedTheme);
+      updateThemeIcon(savedTheme);
+
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = body.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        body.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        updateThemeIcon(newTheme);
+      });
+
+      function updateThemeIcon(theme) {
+        themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+      }
+
+      // Guide modal
+      const guideOpen = document.getElementById("guideOpen");
+      const guideClose = document.getElementById("guideClose");
+      const guideModal = document.getElementById("guideModal");
+      if (guideOpen && guideClose && guideModal) {
+        guideOpen.addEventListener("click", () => guideModal.classList.add("open"));
+        guideClose.addEventListener("click", () => guideModal.classList.remove("open"));
+        guideModal.addEventListener("click", (e) => { if (e.target === guideModal) guideModal.classList.remove("open"); });
+      }
+    </script>
+  </body>
+</html>

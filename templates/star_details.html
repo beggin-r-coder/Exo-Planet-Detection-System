@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ star.kepler_name or star.kepoi_name }} — Star Details</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="theme-toggle">
+      <button id="themeToggle" class="theme-btn">🌙</button>
+    </div>
+    <div class="container">
+      <a href="/search" class="back-btn">← Back to Search</a>
+      <h1 class="star-title">{{ star.kepler_name or star.kepoi_name }}</h1>
+      <p class="star-subtitle">
+        {{ star.kepoi_name }} • {{ star.koi_disposition or 'Unknown Status' }}
+      </p>
+
+      <!-- Star Overview -->
+      <div class="star-overview">
+        <div class="overview-grid">
+          <div class="overview-item">
+            <h3>Basic Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Kepler ID:</span>
+                <span class="value">{{ star.kepid or 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">KOI Name:</span>
+                <span class="value">{{ star.kepoi_name or 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Kepler Name:</span>
+                <span class="value">{{ star.kepler_name or 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Disposition:</span>
+                <span
+                  class="value status-{{ star.koi_disposition?.lower().replace(' ', '-') if star.koi_disposition else 'unknown' }}"
+                >
+                  {{ star.koi_disposition or 'Unknown' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-item">
+            <h3>Orbital Parameters</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Period:</span>
+                <span class="value"
+                  >{{ "%.2f days"|format(star.koi_period) if star.koi_period
+                  else 'N/A' }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Duration:</span>
+                <span class="value"
+                  >{{ "%.2f hours"|format(star.koi_duration) if
+                  star.koi_duration else 'N/A' }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Depth:</span>
+                <span class="value"
+                  >{{ "%.0f ppm"|format(star.koi_depth) if star.koi_depth else
+                  'N/A' }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Impact:</span>
+                <span class="value"
+                  >{{ "%.3f"|format(star.koi_impact) if star.koi_impact else
+                  'N/A' }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-item">
+            <h3>Planet Properties</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Planet Radius:</span>
+                <span class="value"
+                  >{{ "%.2f R⊕"|format(star.koi_prad) if star.koi_prad else
+                  'N/A' }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Equilibrium Temp:</span>
+                <span class="value"
+                  >{{ "%.0f K"|format(star.koi_teq) if star.koi_teq else 'N/A'
+                  }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Insolation:</span>
+                <span class="value"
+                  >{{ "%.1f S⊕"|format(star.koi_insol) if star.koi_insol else
+                  'N/A' }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">SNR:</span>
+                <span class="value"
+                  >{{ "%.1f"|format(star.koi_model_snr) if star.koi_model_snr
+                  else 'N/A' }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-item">
+            <h3>Star Properties</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Effective Temp:</span>
+                <span class="value"
+                  >{{ "%.0f K"|format(star.koi_steff) if star.koi_steff else
+                  'N/A' }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Surface Gravity:</span>
+                <span class="value"
+                  >{{ "%.2f"|format(star.koi_slogg) if star.koi_slogg else 'N/A'
+                  }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Star Radius:</span>
+                <span class="value"
+                  >{{ "%.2f R☉"|format(star.koi_srad) if star.koi_srad else
+                  'N/A' }}</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="label">Kepler Magnitude:</span>
+                <span class="value"
+                  >{{ "%.2f"|format(star.koi_kepmag) if star.koi_kepmag else
+                  'N/A' }}</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coordinates -->
+      <div class="coordinates-card">
+        <h2>📍 Celestial Coordinates</h2>
+        <div class="coord-grid">
+          <div class="coord-item">
+            <span class="label">Right Ascension:</span>
+            <span class="value"
+              >{{ "%.6f°"|format(star.ra) if star.ra else 'N/A' }}</span
+            >
+          </div>
+          <div class="coord-item">
+            <span class="label">Declination:</span>
+            <span class="value"
+              >{{ "%.6f°"|format(star.dec) if star.dec else 'N/A' }}</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="additional-info">
+        <h2>📊 Additional Data</h2>
+        <div class="additional-grid">
+          <div class="additional-item">
+            <span class="label">Planet Number:</span>
+            <span class="value">{{ star.koi_tce_plnt_num or 'N/A' }}</span>
+          </div>
+          <div class="additional-item">
+            <span class="label">Delivery Name:</span>
+            <span class="value">{{ star.koi_tce_delivname or 'N/A' }}</span>
+          </div>
+          <div class="additional-item">
+            <span class="label">Score:</span>
+            <span class="value"
+              >{{ "%.3f"|format(star.koi_score) if star.koi_score else 'N/A'
+              }}</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Anishka Das & Team — Final Year Project – Exoplanet Detection System
+      </p>
+    </footer>
+
+    <script>
+      // Dark mode functionality
+      document.addEventListener("DOMContentLoaded", () => {
+        const themeToggle = document.getElementById("themeToggle");
+        const body = document.body;
+
+        if (themeToggle) {
+          // Load saved theme
+          const savedTheme = localStorage.getItem("theme") || "dark";
+          body.setAttribute("data-theme", savedTheme);
+          updateThemeIcon(savedTheme);
+
+          themeToggle.addEventListener("click", () => {
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateThemeIcon(newTheme);
+          });
+
+          function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

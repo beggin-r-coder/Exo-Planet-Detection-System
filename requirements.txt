@@ -1,0 +1,9 @@
+flask
+pandas
+numpy
+joblib
+scikit-learn
+reportlab
+matplotlib
+lightkurve
+

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Results — Exoplanet Detection</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+  </head>
+  <body>
+    <div class="theme-toggle">
+      <button id="themeToggle" class="theme-btn">🌙</button>
+    </div>
+    <div class="container">
+      <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+        <a href="/" class="back-btn">← Back to Upload</a>
+        <button id="guideOpen" class="header-btn" type="button">📘 Guide</button>
+      </div>
+      <h1 class="results-title">Analysis Results</h1>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Detection Rate</div>
+          <div id="conf" class="metric-value">—</div>
+          <div class="metric-sub">Probability of exoplanet presence</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Average Flux</div>
+          <div id="avgFlux" class="metric-value">—</div>
+          <div class="metric-sub">Mean stellar brightness</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Minimum Flux</div>
+          <div id="minFlux" class="metric-value">—</div>
+          <div class="metric-sub">Deepest transit detected</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2>Flux vs Time</h2>
+          <p class="chart-sub">
+            Time-series photometric data showing stellar brightness variations
+          </p>
+          <div class="chart-controls">
+            <button id="resetZoom" class="zoom-btn">🔍 Reset Zoom</button>
+            <span class="zoom-hint">💡 Drag to pan • Scroll to zoom</span>
+          </div>
+        </div>
+        <canvas id="fluxChart"></canvas>
+      </div>
+
+      <div class="analysis-card">
+        <h2>Detection Analysis</h2>
+        <p>
+          <strong>Method:</strong> Transit photometry analysis identifies
+          exoplanets by detecting periodic dips in stellar flux caused by
+          planetary transits.
+        </p>
+        <p>
+          <strong>Data Points:</strong>
+          <span id="dataPoints">—</span> measurements analyzed
+        </p>
+        <p>
+          <strong>Interpretation:</strong> <span id="interpretation">—</span>
+        </p>
+        <div class="download-section">
+          <a href="/download_report" class="download-btn" target="_blank">
+            📄 Download Analysis Report
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Anishka Das & Team — Final Year Project – Exoplanet Detection System
+      </p>
+    </footer>
+
+    <!-- Guide Modal -->
+    <div id="guideModal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">📘 Results Guide</h2>
+          <button class="modal-close" id="guideClose" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <h3>Main metrics</h3>
+          <ul class="guide-list">
+            <li><b>Detection Rate</b>: Mean probability of transit-like behavior (%).</li>
+            <li><b>Average Flux</b>: Mean stellar brightness.</li>
+            <li><b>Minimum Flux</b>: Deepest dip observed.</li>
+          </ul>
+          <h3>Chart interactions</h3>
+          <ul class="guide-list">
+            <li>Scroll to zoom, drag to pan, use <b>Reset Zoom</b>.</li>
+            <li>Average line shows baseline vs dips.</li>
+          </ul>
+          <h3>Report</h3>
+          <p class="modal-tip">Use the "Download Analysis Report" button to export a PDF including chart and summary.</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+    <script>
+      // Guide modal
+      (function(){
+        const guideOpen = document.getElementById('guideOpen');
+        const guideClose = document.getElementById('guideClose');
+        const guideModal = document.getElementById('guideModal');
+        if (guideOpen && guideClose && guideModal) {
+          guideOpen.addEventListener('click', () => guideModal.classList.add('open'));
+          guideClose.addEventListener('click', () => guideModal.classList.remove('open'));
+          guideModal.addEventListener('click', (e) => { if (e.target === guideModal) guideModal.classList.remove('open'); });
+        }
+      })();
+    </script>
+  </body>
+</html>

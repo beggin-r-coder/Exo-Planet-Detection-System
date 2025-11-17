@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kepler Light Curve — Exoplanet Detection System</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+  </head>
+  <body>
+    <div class="theme-toggle">
+      <button id="themeToggle" class="theme-btn">🌙</button>
+    </div>
+    <div class="container">
+      <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+        <a href="/" class="back-btn">← Back to Home</a>
+        <button id="guideOpen" class="header-btn" type="button">📘 Guide</button>
+      </div>
+      <h1 class="kepler-title">Kepler Light Curve Analyzer</h1>
+      <p class="kepler-subtitle">
+        Enter a Kepler ID (KIC number) to fetch and visualize light curve data
+        from the Kepler Space Telescope mission
+      </p>
+
+      <!-- Search Section -->
+      <div class="kepler-search-card">
+        <h2 class="card-title">🔍 Search Kepler Database</h2>
+        <p class="card-description">
+          Enter a Kepler Input Catalog (KIC) ID (e.g., 10797460, 10811496)
+        </p>
+
+        <div class="kepler-search-form">
+          <input
+            type="text"
+            id="keplerIdInput"
+            placeholder="Enter Kepler ID (KIC)..."
+            class="kepler-input"
+            autocomplete="off"
+          />
+          <button id="fetchBtn" class="kepler-btn">Fetch Light Curve</button>
+        </div>
+
+        <div id="loadingMessage" class="loading-message" style="display: none">
+          <div class="spinner"></div>
+          <p>Fetching data from Kepler database... This may take a moment.</p>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none"></div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsSection" style="display: none">
+        <!-- Star Information -->
+        <div class="kepler-info-card">
+          <h2>⭐ Star Information</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Kepler ID (KIC):</span>
+              <span id="starKeplerId" class="value">—</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Right Ascension:</span>
+              <span id="starRA" class="value">—</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Declination:</span>
+              <span id="starDec" class="value">—</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Kepler Magnitude:</span>
+              <span id="starMagnitude" class="value">—</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Data Points:</span>
+              <span id="starDataPoints" class="value">—</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Time Range:</span>
+              <span id="starTimeRange" class="value">—</span>
+            </div>
+          </div>
+
+          <h3 style="margin-top: 24px; margin-bottom: 16px; color: var(--text); border-top: 1px solid rgba(148, 163, 184, 0.2); padding-top: 16px;">
+            🪐 Exoplanet Information
+          </h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Total Exoplanets:</span>
+              <span id="exoplanetTotal" class="value">—</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Confirmed Exoplanets:</span>
+              <span id="exoplanetConfirmed" class="value confirmed-badge">—</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Candidate Exoplanets:</span>
+              <span id="exoplanetCandidates" class="value candidate-badge">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flux Statistics -->
+        <div class="kepler-stats-card">
+          <h2>📊 Flux Statistics</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Mean Flux</div>
+              <div id="statMean" class="stat-value">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Minimum Flux</div>
+              <div id="statMin" class="stat-value">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Maximum Flux</div>
+              <div id="statMax" class="stat-value">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Standard Deviation</div>
+              <div id="statStd" class="stat-value">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Light Curve Visualization -->
+        <div class="kepler-chart-card">
+          <div class="chart-header">
+            <h2>📈 Light Curve Visualization</h2>
+            <p class="chart-description">
+              Time-series photometric data showing stellar brightness variations
+              over time
+            </p>
+            <div class="chart-controls">
+              <button id="resetKeplerZoom" class="zoom-btn">🔍 Reset Zoom</button>
+              <span class="zoom-hint">💡 Drag to pan • Scroll to zoom</span>
+            </div>
+          </div>
+          <canvas id="keplerChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Anishka Das & Team — Final Year Project – Exoplanet Detection System
+      </p>
+    </footer>
+
+    <!-- Guide Modal -->
+    <div id="guideModal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">📘 Kepler Guide</h2>
+          <button class="modal-close" id="guideClose" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <h3>How it works</h3>
+          <ul class="guide-list">
+            <li>Enter a <b>Kepler Input Catalog (KIC)</b> ID to fetch pixel files via <b>Lightkurve</b>.</li>
+            <li>We convert to a light curve, remove outliers, normalize, and plot <b>flux vs time</b>.</li>
+          </ul>
+          <h3>Details panel</h3>
+          <ul class="guide-list">
+            <li><b>RA/Dec</b>: Celestial coordinates of the target.</li>
+            <li><b>Magnitude</b>: Kepler magnitude if available.</li>
+            <li><b>Exoplanets</b>: Total/confirmed/candidate counts from the dataset for this KIC.</li>
+          </ul>
+          <h3>Chart controls</h3>
+          <ul class="guide-list">
+            <li>Scroll to zoom, drag to pan, use <b>Reset Zoom</b>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let keplerChart = null;
+
+      const keplerIdInput = document.getElementById("keplerIdInput");
+      const fetchBtn = document.getElementById("fetchBtn");
+      const loadingMessage = document.getElementById("loadingMessage");
+      const errorMessage = document.getElementById("errorMessage");
+      const resultsSection = document.getElementById("resultsSection");
+
+      // Fetch light curve data
+      async function fetchKeplerData() {
+        const keplerId = keplerIdInput.value.trim();
+
+        if (!keplerId) {
+          showError("Please enter a Kepler ID");
+          return;
+        }
+
+        // Show loading, hide errors and results
+        loadingMessage.style.display = "block";
+        errorMessage.style.display = "none";
+        resultsSection.style.display = "none";
+        fetchBtn.disabled = true;
+
+        try {
+          const response = await fetch(
+            `/api/kepler_lightcurve?id=${encodeURIComponent(keplerId)}`
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to fetch data");
+          }
+
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          // Display results
+          displayResults(data);
+          loadingMessage.style.display = "none";
+          resultsSection.style.display = "block";
+        } catch (error) {
+          console.error("Fetch error:", error);
+          showError(error.message || "Error fetching Kepler data");
+          loadingMessage.style.display = "none";
+        } finally {
+          fetchBtn.disabled = false;
+        }
+      }
+
+      // Display results
+      function displayResults(data) {
+        const starInfo = data.star_info;
+
+        // Update star information
+        document.getElementById("starKeplerId").textContent =
+          starInfo.kepler_id || "—";
+        document.getElementById("starRA").textContent =
+          starInfo.ra ? starInfo.ra.toFixed(6) + "°" : "—";
+        document.getElementById("starDec").textContent =
+          starInfo.dec ? starInfo.dec.toFixed(6) + "°" : "—";
+        document.getElementById("starMagnitude").textContent =
+          starInfo.magnitude ? starInfo.magnitude.toFixed(2) : "—";
+        document.getElementById("starDataPoints").textContent =
+          starInfo.data_points || "—";
+
+        const timeRange = starInfo.time_range;
+        if (timeRange && timeRange.start && timeRange.end) {
+          document.getElementById("starTimeRange").textContent =
+            timeRange.start.toFixed(2) + " - " + timeRange.end.toFixed(2);
+        } else {
+          document.getElementById("starTimeRange").textContent = "—";
+        }
+
+        // Update exoplanet information
+        const exoplanets = starInfo.exoplanets || {};
+        document.getElementById("exoplanetTotal").textContent =
+          exoplanets.total !== undefined ? exoplanets.total : "—";
+        document.getElementById("exoplanetConfirmed").textContent =
+          exoplanets.confirmed !== undefined ? exoplanets.confirmed : "—";
+        document.getElementById("exoplanetCandidates").textContent =
+          exoplanets.candidates !== undefined ? exoplanets.candidates : "—";
+
+        // Update flux statistics
+        const fluxStats = starInfo.flux_stats;
+        document.getElementById("statMean").textContent =
+          fluxStats.mean ? fluxStats.mean.toFixed(6) : "—";
+        document.getElementById("statMin").textContent =
+          fluxStats.min ? fluxStats.min.toFixed(6) : "—";
+        document.getElementById("statMax").textContent =
+          fluxStats.max ? fluxStats.max.toFixed(6) : "—";
+        document.getElementById("statStd").textContent =
+          fluxStats.std ? fluxStats.std.toFixed(6) : "—";
+
+        // Create/update chart
+        createChart(data.time, data.flux, fluxStats.mean);
+      }
+
+      // Create Chart.js visualization
+      function createChart(time, flux, avgFlux) {
+        const ctx = document.getElementById("keplerChart").getContext("2d");
+
+        // Destroy existing chart if it exists
+        if (keplerChart) {
+          keplerChart.destroy();
+        }
+
+        // Calculate average line if avgFlux is provided
+        const avgLine = avgFlux ? new Array(flux.length).fill(avgFlux) : null;
+
+        const datasets = [
+          {
+            label: "Flux",
+            data: flux,
+            borderColor: "rgba(96,165,250,1)",
+            backgroundColor: "rgba(96,165,250,0.2)",
+            tension: 0.25,
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: true,
+          },
+        ];
+
+        if (avgLine) {
+          datasets.push({
+            label: "Average",
+            data: avgLine,
+            borderColor: "rgba(148,163,184,0.8)",
+            borderDash: [6, 6],
+            borderWidth: 1.5,
+            pointRadius: 0,
+            fill: false,
+          });
+        }
+
+        keplerChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: time,
+            datasets: datasets,
+          },
+          options: {
+            responsive: true,
+            animation: { duration: 600 },
+            plugins: {
+              legend: { labels: { color: "#e2e8f0" } },
+              tooltip: { enabled: true },
+              zoom: {
+                zoom: {
+                  wheel: {
+                    enabled: true,
+                    speed: 0.1,
+                  },
+                  pinch: {
+                    enabled: true,
+                  },
+                  mode: "xy",
+                },
+                pan: {
+                  enabled: true,
+                  mode: "xy",
+                },
+              },
+            },
+            scales: {
+              x: {
+                title: { display: true, text: "Time (JD)", color: "#94a3b8" },
+                ticks: { color: "#94a3b8" },
+                grid: { color: "rgba(148,163,184,0.12)" },
+              },
+              y: {
+                title: { display: true, text: "Normalized Flux", color: "#94a3b8" },
+                ticks: { color: "#94a3b8" },
+                grid: { color: "rgba(148,163,184,0.12)" },
+              },
+            },
+          },
+        });
+        
+        // Add reset zoom button functionality
+        const resetKeplerZoomBtn = document.getElementById("resetKeplerZoom");
+        if (resetKeplerZoomBtn) {
+          resetKeplerZoomBtn.addEventListener("click", () => {
+            if (keplerChart) {
+              keplerChart.resetZoom();
+            }
+          });
+        }
+      }
+
+      // Show error message
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+        resultsSection.style.display = "none";
+      }
+
+      // Event listeners
+      fetchBtn.addEventListener("click", fetchKeplerData);
+
+      keplerIdInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          fetchKeplerData();
+        }
+      });
+
+      // Dark mode functionality
+      document.addEventListener("DOMContentLoaded", () => {
+        const themeToggle = document.getElementById("themeToggle");
+        const body = document.body;
+
+        if (themeToggle) {
+          // Load saved theme
+          const savedTheme = localStorage.getItem("theme") || "dark";
+          body.setAttribute("data-theme", savedTheme);
+          updateThemeIcon(savedTheme);
+
+          themeToggle.addEventListener("click", () => {
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateThemeIcon(newTheme);
+          });
+
+          function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+          }
+        }
+      });
+
+      // Guide modal
+      (function(){
+        const guideOpen = document.getElementById('guideOpen');
+        const guideClose = document.getElementById('guideClose');
+        const guideModal = document.getElementById('guideModal');
+        if (guideOpen && guideClose && guideModal) {
+          guideOpen.addEventListener('click', () => guideModal.classList.add('open'));
+          guideClose.addEventListener('click', () => guideModal.classList.remove('open'));
+          guideModal.addEventListener('click', (e) => { if (e.target === guideModal) guideModal.classList.remove('open'); });
+        }
+      })();
+    </script>
+  </body>
+</html>

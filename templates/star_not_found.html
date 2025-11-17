@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Not Found — Exoplanet Detection System</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="theme-toggle">
+      <button id="themeToggle" class="theme-btn">🌙</button>
+    </div>
+    <div class="container">
+      <a href="/search" class="back-btn">← Back to Search</a>
+
+      <div class="not-found-card">
+        <div class="not-found-icon">🔍</div>
+        <h1>Star Not Found</h1>
+        <p>
+          The star "<strong>{{ star_id }}</strong>" was not found in our
+          database.
+        </p>
+        <p>Please check the spelling or try searching with a different name.</p>
+
+        <div class="not-found-actions">
+          <a href="/search" class="btn">Back to Search</a>
+          <a href="/" class="btn secondary">Upload Data</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Anishka Das & Team — Final Year Project – Exoplanet Detection System
+      </p>
+    </footer>
+
+    <script>
+      // Dark mode functionality
+      document.addEventListener("DOMContentLoaded", () => {
+        const themeToggle = document.getElementById("themeToggle");
+        const body = document.body;
+
+        if (themeToggle) {
+          // Load saved theme
+          const savedTheme = localStorage.getItem("theme") || "dark";
+          body.setAttribute("data-theme", savedTheme);
+          updateThemeIcon(savedTheme);
+
+          themeToggle.addEventListener("click", () => {
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateThemeIcon(newTheme);
+          });
+
+          function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

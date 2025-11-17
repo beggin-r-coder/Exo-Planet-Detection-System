@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Search — Exoplanet Detection System</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="theme-toggle">
+      <button id="themeToggle" class="theme-btn">🌙</button>
+    </div>
+    <div class="container">
+      <a href="/" class="back-btn">← Back to Upload</a>
+      <h1 class="search-title">Star Database Search</h1>
+      <p class="search-subtitle">
+        Search through our database of confirmed exoplanets and their host stars
+      </p>
+
+      <!-- Search Section -->
+      <div class="search-card">
+        <h2 class="card-title">🔍 Search Stars</h2>
+        <p class="card-description">
+          Enter a star name (e.g., "Kepler-227", "K00752") to find detailed
+          information
+        </p>
+
+        <div class="search-form">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Enter star name..."
+            class="search-input"
+            autocomplete="off"
+          />
+          <button id="searchBtn" class="search-btn">Search</button>
+        </div>
+
+        <div id="searchResults" class="search-results"></div>
+      </div>
+
+      <!-- Popular Stars Section -->
+      <div class="popular-stars-card">
+        <h2 class="card-title">⭐ Popular Stars</h2>
+        <p class="card-description">
+          Explore some well-known exoplanet host stars
+        </p>
+        <div class="popular-grid">
+          <div class="popular-item" data-star="Kepler-227">
+            <h4>Kepler-227</h4>
+            <p>Multi-planet system with confirmed exoplanets</p>
+          </div>
+          <div class="popular-item" data-star="Kepler-228">
+            <h4>Kepler-228</h4>
+            <p>System with multiple confirmed planets</p>
+          </div>
+          <div class="popular-item" data-star="Kepler-664">
+            <h4>Kepler-664</h4>
+            <p>Confirmed exoplanet host star</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Anishka Das & Team — Final Year Project – Exoplanet Detection System
+      </p>
+    </footer>
+
+    <script>
+      // Search functionality
+      const searchInput = document.getElementById("searchInput");
+      const searchBtn = document.getElementById("searchBtn");
+      const searchResults = document.getElementById("searchResults");
+      const popularItems = document.querySelectorAll(".popular-item");
+
+       // Search function
+       async function performSearch(query) {
+         if (!query.trim()) {
+           searchResults.innerHTML = "";
+           return;
+         }
+
+         // Show loading state
+         searchResults.innerHTML = '<div class="loading">Searching...</div>';
+
+         try {
+           const response = await fetch(
+             `/api/search_stars?q=${encodeURIComponent(query)}`
+           );
+           
+           if (!response.ok) {
+             throw new Error(`HTTP error! status: ${response.status}`);
+           }
+           
+           const results = await response.json();
+           
+           // Check if response contains an error
+           if (results.error) {
+             throw new Error(results.error);
+           }
+           
+           displayResults(results);
+         } catch (error) {
+           console.error("Search error:", error);
+           searchResults.innerHTML = `<div class="error-message">Error performing search: ${error.message}</div>`;
+         }
+       }
+
+      // Display search results
+      function displayResults(results) {
+        if (results.length === 0) {
+          searchResults.innerHTML =
+            '<div class="no-results">No stars found matching your search.</div>';
+          return;
+        }
+
+        const resultsHtml = results
+          .map(
+            (star) => `
+          <div class="result-item" onclick="viewStarDetails('${
+            star.kepler_name || star.kepoi_name
+          }')">
+            <div class="result-header">
+              <h3>${star.kepler_name || star.kepoi_name}</h3>
+              <span class="result-id">${star.kepoi_name}</span>
+            </div>
+            <div class="result-details">
+              <div class="detail-item">
+                <span class="label">Disposition:</span>
+                <span class="value ${star.koi_disposition
+                  ?.toLowerCase()
+                  .replace(" ", "-")}">${
+              star.koi_disposition || "Unknown"
+            }</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Period:</span>
+                <span class="value">${
+                  star.koi_period
+                    ? star.koi_period.toFixed(2) + " days"
+                    : "Unknown"
+                }</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Depth:</span>
+                <span class="value">${
+                  star.koi_depth
+                    ? star.koi_depth.toFixed(0) + " ppm"
+                    : "Unknown"
+                }</span>
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        searchResults.innerHTML = resultsHtml;
+      }
+
+      // View star details
+      function viewStarDetails(starId) {
+        window.location.href = `/star/${encodeURIComponent(starId)}`;
+      }
+
+      // Event listeners
+      searchBtn.addEventListener("click", () => {
+        performSearch(searchInput.value);
+      });
+
+      searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          performSearch(searchInput.value);
+        }
+      });
+
+      // Popular stars click handlers
+      popularItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const starName = item.dataset.star;
+          searchInput.value = starName;
+          performSearch(starName);
+        });
+      });
+
+      // Dark mode functionality
+      document.addEventListener("DOMContentLoaded", () => {
+        const themeToggle = document.getElementById("themeToggle");
+        const body = document.body;
+
+        if (themeToggle) {
+          // Load saved theme
+          const savedTheme = localStorage.getItem("theme") || "dark";
+          body.setAttribute("data-theme", savedTheme);
+          updateThemeIcon(savedTheme);
+
+          themeToggle.addEventListener("click", () => {
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateThemeIcon(newTheme);
+          });
+
+          function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
