@@ -1,4 +1,4 @@
-#🌌 Exoplanet Detection System using Machine Learning & Flask
+🌌 Exoplanet Detection System using Machine Learning & Flask
 
 A machine learning–powered web application that analyzes stellar light curve data to detect potential exoplanets using the transit photometry method.
 Built with Python, scikit-learn, Flask, Matplotlib, and ReportLab, this project demonstrates how data science and astronomy can be combined to identify planetary transit events.
@@ -59,5 +59,16 @@ Ideal for educational and demonstration purposes
 Future versions will integrate:
 CNNs for pattern detection
 RNNs/LSTMs for time-series learning
-
 Real Kepler/TESS telescope datasets
+
+💡 Future Enhancements
+Integrate real NASA Kepler/TESS datasets
+Improve accuracy with deep learning models
+Cloud deployment (AWS/GCP/Azure)
+Real-time data stream support
+Advanced 3D visualizations
+
+🙌 Acknowledgments
+NASA Exoplanet Archive
+TESS & Kepler Mission Teams
+scikit-learn, Flask, Matplotlib communities
